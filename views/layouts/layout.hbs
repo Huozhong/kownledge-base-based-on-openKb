@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>{{title}}</title>
+	    <meta charset="utf-8">
+    	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<link rel="stylesheet" href="/stylesheets/bootstrap.min.css">
+		<link rel="stylesheet" href="/stylesheets/style.css">
+		<link rel="stylesheet" href="/stylesheets/bootstrap-markdown.min.css">
+		<link rel="stylesheet" href="/stylesheets/bootstrap-switch.min.css">
+		<link rel="stylesheet" href="/stylesheets/font-awesome.min.css">
+		<link rel="stylesheet" href="/stylesheets/bootstrapTagger.css">
+		<link rel="stylesheet" href="/stylesheets/mermaid.css">
+		<link rel="stylesheet" type="text/css" href="/simditor/styles/simditor.css" />
+		<script src="/javascripts/jquery-2.1.4.min.js"></script>
+		<script type="text/javascript" src="/simditor/node_modules/simple-module/lib/module.js"></script>
+		<script type="text/javascript" src="/simditor/node_modules/simple-hotkeys/lib/hotkeys.js"></script>
+		<script type="text/javascript" src="/simditor/node_modules/simple-uploader/lib/uploader.js"></script>
+		<script type="text/javascript" src="/simditor/lib/simditor.js"></script>
+		<script src="/javascripts/bootstrap.min.js"></script>
+		<script src="/javascripts/jqBootstrapValidation.js"></script>
+		<script src="/javascripts/bootstrap-markdown.js"></script>
+		<script src="/javascripts/bootstrap-switch.min.js"></script>
+		<script src="/javascripts/mermaid.min.js"></script>
+		<script src="/javascripts/markdown-it-classy.js"></script>
+		<script src="/javascripts/functions.js"></script>
+	</head>
+	<body>	
+		<!-- Static navbar -->
+	    <nav id="custom-bootstrap-menu" class="navbar navbar-default navbar-static-top">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<a class="navbar-brand" href="/">{{config.settings.website_title}}</a>
+				</div>
+				<div id="navbar" class="navbar-collapse collapse">
+					<ul class="nav navbar-nav navbar-right">
+						{{#if session.user}}
+							{{#if result._id}}
+								<li><a href="/edit/{{result._id}}">Edit</a></li>
+							{{/if}}
+							<li class="dropdown">
+								<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Users <span class="caret"></span></a>
+								<ul class="dropdown-menu">
+									<li><a href="/users/new">New</a></li>
+									<li><a href="/users">Edit</a></li>
+									<li><a href="/user/edit/{{session.user_id}}">My account</a></li>
+								</ul>
+							</li>
+							<li class="dropdown">
+								<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Article <span class="caret"></span></a>
+								<ul class="dropdown-menu">
+									<li><a href="/insert">New</a></li>
+									<li><a href="/articles">Edit</a></li>
+									<li><a href="/files">Files</a></li>
+									<li><a href="/export">Export</a></li>
+								</ul>
+							</li>
+							<li><a href="/logout">Logout</a></li>
+						{{else}}
+							{{#if config.settings.suggest_allowed}}
+								<li><a href="/suggest">Suggest</a></li>
+							{{/if}}
+							<li><a href="/login">Login</a></li>
+						{{/if}}	
+					</ul>
+				</div>
+	      </div>
+	    </nav>	
+		<div class="container-fluid">
+			{{{body}}}
+		</div>
+	</body>
+</html>
