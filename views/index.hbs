@@ -42,8 +42,9 @@
 									<a href="/kb/{{this._id}}">{{this.kb_title}}</a>
 
 									{{#if ../config.settings.show_view_count}}
-								 		<span class="pull-right view_count"><small>View count: {{this.kb_viewcount}}</span></small>
+								 		<span class="pull-right view_count"><small>查看: {{this.kb_viewcount}}</span></small>
 									{{/if}}
+									<span class="pull-right view_count" style="margin-right: 10px"><small>评论: {{this.kb_com_count}}</span></small>
 									{{#if this.kb_password}}
 										<span class="pull-right view_count" style="padding-right: 5px;"><i class="fa fa-lock"></i></span>
 									{{/if}}

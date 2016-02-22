@@ -1,0 +1,42 @@
+<div class="col-md-12">
+	<div class="row">
+		<div class="col-md-8 col-md-offset-2">
+			<ol class="breadcrumb">
+	  			<li><a href="/">首页</a></li>
+	 			<li class="active">文章分类</li>
+			</ol>
+			<strong>添加文章分类</strong>
+			<form action="newCategory" method="post" style="margin-bottom: 60px;">
+				<input type="text" name="cat_name" class="form-control input-lg" placeholder="输入新的文章类名">
+				<label for="isFatherCat">是否为父类</label>
+				<input type="checkbox" name="isFatherCat" id="isFatherCat"></br>
+				
+				<div class="dropdown choiceFather">
+				  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+				    下拉选择父类
+				    <span class="caret"></span>
+				    <input type="hidden">
+				  </button>
+				  <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+				    <li><a href="#">Action</a></li>
+				    <li><a href="#">Another action</a></li>
+				    <li><a href="#">Something else here</a></li>
+				    <li><a href="#">Separated link</a></li>
+				  </ul>
+				</div>
+				<button type="submit" class="btn btn-success editor_btn_action pull-right" style="margin-top: 20px;">添加</button>
+			</form>
+			<h1>文章分类</h1>
+
+			<ul class="list-group">
+				<li class="list-group-item">
+					<span class="pull-right"><strong>是否有子类</strong></span>
+			    	<strong>类名</strong>
+		  		</li>
+				{{#if hascategories}}
+					<input type="hidden" value={{categories}}>
+				{{/if}}
+			</ul>
+		</div>
+	</div>
+</div>

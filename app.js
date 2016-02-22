@@ -9,6 +9,7 @@ var nedb = require('nedb');
 var session = require('express-session');
 var bcrypt = require('bcrypt-nodejs');
 var lunr = require('lunr');
+var fs = require('fs');
 var markdownit = require('markdown-it')({
     html: true,
     linkify: true,
@@ -27,7 +28,14 @@ db.kb = new nedb({
     filename: 'data/kb.db',
     autoload: true
 });
-
+db.files = new nedb({
+    filename: 'data/files.db',
+    autoload: true
+});
+db.categories = new nedb({
+    filename: 'data/categories.db',
+    autoload: true
+});
 // setup lunr indexing
 var lunr_index = lunr(function() {
     this.field('kb_title', {
@@ -54,8 +62,7 @@ db.kb.find({}, function(err, kb_list) {
     });
 });
 
-// require the routes
-var index = require('./routes/index');
+
 
 var app = express();
 
@@ -154,7 +161,9 @@ app.use(function(req, res, next) {
 });
 
 // setup the routes
-app.use('/', index);
+
+// require the routes
+app.use('/', require('./routes/index'));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

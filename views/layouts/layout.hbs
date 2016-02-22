@@ -45,21 +45,26 @@
 							{{#if result._id}}
 								<li><a href="/edit/{{result._id}}">Edit</a></li>
 							{{/if}}
-							<li class="dropdown">
-								<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Users <span class="caret"></span></a>
+							<input type="hidden" value="{{session.is_admin}}" id="isAdminInput">
+							<li class="dropdown" id="adminLi" style="display: none;">
+								<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">用户管理 <span class="caret"></span></a>
 								<ul class="dropdown-menu">
-									<li><a href="/users/new">New</a></li>
-									<li><a href="/users">Edit</a></li>
-									<li><a href="/user/edit/{{session.user_id}}">My account</a></li>
+									<li><a href="/users/new">新建用户</a></li>
+									<li><a href="/users">编辑用户</a></li>
+									<li><a href="/user/edit/{{session.user_id}}">个人中心</a></li>
 								</ul>
 							</li>
+							<li id="notAdminLi" style="display: none;">
+								<a href="/user/edit/{{session.user_id}}">个人中心</a>
+							</li>
 							<li class="dropdown">
-								<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Article <span class="caret"></span></a>
-								<ul class="dropdown-menu">
-									<li><a href="/insert">New</a></li>
-									<li><a href="/articles">Edit</a></li>
-									<li><a href="/files">Files</a></li>
-									<li><a href="/export">Export</a></li>
+								<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">文章管理 <span class="caret"></span></a>
+								<ul class="dropdown-menu" data-isadmin="{{session.is_admin}}">
+									<li><a href="/categories">分类</a></li>
+									<li><a href="/insert">新建</a></li>
+									<li><a href="/articles">列表</a></li>
+									<li><a href="/files">文件</a></li>
+									<li><a href="/export">导出</a></li>
 								</ul>
 							</li>
 							<li><a href="/logout">Logout</a></li>
@@ -77,4 +82,14 @@
 			{{{body}}}
 		</div>
 	</body>
+	<script type="text/javascript">
+
+		var $usersCenter = $('#isAdminInput');
+		var is_admin = $usersCenter.attr('value');
+		if(is_admin == 'false'){
+		    $('#notAdminLi').show();
+		}else{
+			$('#adminLi').show();
+		}
+	</script>
 </html>

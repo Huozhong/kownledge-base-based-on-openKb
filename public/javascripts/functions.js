@@ -34,29 +34,50 @@ $(document).ready(function() {
             });
     });
 
-    var $preview, editor, mobileToolbar, toolbar;
-    // Simditor.locale = 'en-US';
-    toolbar = ['title', 'bold', 'italic', 'underline', 'strikethrough', 'fontScale', 'color', '|', 'ol', 'ul', 'blockquote', 'code', 'table', '|', 'link', 'image', 'hr', '|', 'indent', 'outdent', 'alignment'];
-    // mobileToolbar = ["bold", "underline", "strikethrough", "color", "ul", "ol"];
-    // if (mobilecheck()) {
-    //   toolbar = mobileToolbar;
-    // }
-    editor = new Simditor({
-        textarea: $('#editor'),
-        placeholder: '这里输入文章内容...',
-        toolbar: toolbar,
-        pasteImage: true,
-        defaultImage: 'assets/images/image.png',
-        upload: {
-            url: '/upload'
+    if($("#editor").length>=1){
+        var editor, toolbar;
+        toolbar = ['title', 'bold', 'italic', 'underline', 'strikethrough',
+            'fontScale', 'color', '|', 'ol', 'ul', 'blockquote', 'code', 'table',
+            '|', 'link', 'image', 'hr', '|', 'indent', 'outdent', 'alignment'
+        ];
+        editor = new Simditor({
+            textarea: $('#editor'),
+            placeholder: '这里输入文章内容...',
+            toolbar: toolbar,
+            pasteImage: true,
+            defaultImage: 'assets/images/image.png',
+            upload: {
+                url: '/upload'
+            }
+        });
+    }else if($("#disEditor").length>=1){
+        var disEditor, disToolbar;
+        disToolbar = ['title', 'bold', 'italic', 'underline', 'strikethrough',
+            'fontScale', 'color', '|', 'ol', 'ul', 'blockquote', 'code',
+            'table', '|', 'link', 'image', 'hr', '|', 'indent', 'outdent',
+            'alignment'
+        ];
+        disEditor = new Simditor({
+            textarea: $('#disEditor'),
+            placeholder: '这里输入评论内容...',
+            toolbar: disToolbar,
+            pasteImage: true,
+            defaultImage: 'assets/images/image.png',
+            upload: {
+                url: '/upload'
+            }
+        });
+    }
+    
+    console.log($('#isFatherCat'));
+    $('#isFatherCat').click(function(){
+        console.log(1);
+        if($(this).is(':checked')){
+            $('.choiceFather').hide();
+        }else{
+            $('.choiceFather').show();
         }
     });
-    // $preview = $('#preview');
-    // if ($preview.length > 0) {
-    //     return editor.on('valuechanged', function(e) {
-    //         return $preview.html(editor.getValue());
-    //     });
-    // }
 
 });
 
@@ -82,6 +103,7 @@ function file_delete_confirm(img, id) {
 
 $(function() {
     $("input,select,textarea").not("[type=submit]").jqBootstrapValidation();
+
 });
 
 function search_form(id) {

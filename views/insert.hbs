@@ -39,10 +39,7 @@
 								<label>关键字</label><br/>
 								<input type="text" class="form-control" name="frm_kb_keywords" id="frm_kb_keywords" value="{{result.kb_keywords}}">
 							</div>
-							<div class="form-group">
-								<label class="file-form">附件</label>
-								<input type="file" name="upload_file" class="form-control" id="upload_file">
-							</div>
+							
 						</div>
 						<div class="col-xs-4 col-sm-2 col-md-2 col-lg-1">
 							<div class="form-group pull-right">
@@ -70,7 +67,24 @@
 					</div>
 				</div>
 			</form>
-			
+			<form class="form-horizontal" role="form" method="post" action="/file/myupload" enctype="multipart/form-data">
+				<div class="form-group">
+					<label class="file-form">附件</label>
+					<input type="file" name="upload_file" class="form-control" id="upload_file">
+				</div>
+				<div class="form-group file-form">
+						<button type="submit" class="btn btn-primary pull-right">上传附件</button>
+					</div>
+				<ul class="list-group">
+					{{#each files}}
+						<li class="list-group-item" id="file-{{this.id}}">
+							<span><i class="fa fa-file-image-o"></i></span>
+							<span class="align-left"><a class="imgPreview" href="{{this.path}}" target="_blank">{{this.path}}</a></span>
+							<span class="pull-right" style="padding-left: 10px;"><button class="btn btn-primary btn-xs" onclick="file_delete_confirm('{{this.path}}','{{this.id}}')"><i class="fa fa-trash-o"></i></button></span>
+						</li>
+					{{/each}}
+					</ul>
+			</form>
 		</div>
 		
 		{{#if editor}}

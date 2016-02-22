@@ -1,14 +1,19 @@
 <div class="row">
-	<form action="/search" method="post">
-		<div class="col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2">
-			<div class="input-group">
-				<input type="text" name="frm_search" class="form-control input-lg" placeholder="Search the knowledge base">
-				<span class="input-group-btn">
-					<button class="btn btn-primary btn-lg" type="submit">Search</button>
-				</span>
+	<div class="col-lg-12">
+		{{#if message}}
+			<div class="alert alert-{{ message_type}} alert-dismissable">
+				<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+				{{message}}
 			</div>
-		</div>
-	</form>
+		{{/if}}
+	</div>
+	<div class="col-md-6 col-md-offset-3">
+		<ol class="breadcrumb">
+			<li><a href="/">首页</a></li>
+			<li><a href="/Users">文章</a></li>
+			<li class="active">{{result.kb_title}}</li>
+		</ol>
+	</div>
 </div>
 <div class="row">
 	<div class="col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2">
@@ -16,7 +21,7 @@
 		<p class="body_text">{{{kb_body}}}</p>
 		{{#if config.settings.show_kb_meta}}
 			<div class="panel panel-default" style="margin-top: 35px;">
-				<div class="panel-heading">Article details:</div>
+				<div class="panel-heading">文章信息:</div>
 				<div class="panel-body">
 					<h5>
 						<strong>Published date:</strong> {{format_date result.kb_published_date 'DD/MM/YYYY h:mmA'}}
@@ -33,5 +38,43 @@
 		<h5 style="padding-top:20px;">
 			{{{split_keywords result.kb_keywords}}}
 		</h5>
+		{{#if result.kb_comment}}
+			<div class="panel panel-default" style="margin-top: 35px;">
+				<div class="panel-heading">评论:</div>
+				{{#each result.kb_comment}}
+					<div class="panel-body">
+						<h5>
+							{{{this.com_con}}}
+						</h5>
+						<h5>
+							<strong>评论人:</strong> {{this.com_author}}
+						</h5>
+						<h5>
+							<strong>评论时间:</strong> {{format_date this.com_date 'DD/MM/YYYY h:mmA'}}
+						</h5>
+					</div>
+				{{/each}}
+			</div>
+		{{/if}}
 	</div>
 </div>
+{{#if session.user}}
+	<div class="row">
+		<div class="col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2">
+			<form action="/comment" method="post" id="discuss_form" style="min-height: 500px;">
+				<input type="hidden" name="frm_kb_id" value="{{result._id}}" />
+				<label>评论</label>
+				<textarea id="disEditor" minlength="5" class="form-control" name="frm_com_body" required></textarea>
+				<div class="pull-right" style="margin-top: 20px;">
+	  				<button type="submit" class="btn btn-success editor_btn_action">提交评论</button>
+				</div>
+			</form>
+		</div>
+	</div>
+{{else}}
+	<div class="row">
+		<div class="col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2">
+			<h5 class="text-danger">登录可评论</h5>
+		</div>
+	</div>
+{{/if}}	
