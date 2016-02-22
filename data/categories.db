@@ -1,0 +1,11 @@
+{"catName": "first1", "id": "001", "isRoot": true, "isSecondary": false, "isChild": false}
+	{"catName": "first2", "id": "002", "isRoot": true, "isSecondary": false, "isChild": false}
+	{"catName": "first3", "id": "003", "isRoot": true, "isSecondary": false, "isChild": false}
+	{"catName": "second1_1", "id": "004", "isRoot": false, "isSecondary": true, "isChild": false, "parent_id": "001"}
+	{"catName": "second1_2", "id": "005", "isRoot": false, "isSecondary": true, "isChild": false, "parent_id": "001"}
+	{"catName": "second2_1", "id": "006", "isRoot": false, "isSecondary": true, "isChild": false, "parent_id": "002"}
+	{"catName": "second2_2", "id": "007", "isRoot": false, "isSecondary": true, "isChild": false, "parent_id": "002"}
+	{"catName": "second3_1", "id": "008", "isRoot": false, "isSecondary": true, "isChild": false, "parent_id": "003"}
+	{"catName": "second1_1_1", "id": "009", "isRoot": false, "isSecondary": false, "isChild": true, "parent_id": "004"}
+	{"catName": "second1_2_1", "id": "010", "isRoot": false, "isSecondary": false, "isChild": true, "parent_id": "005"}
+	{"catName": "second1_2_2", "id": "011", "isRoot": false, "isSecondary": false, "isChild": true, "parent_id": "005"}

@@ -463,44 +463,65 @@ router.post('/protected/action', function(req, res) {
     // 读取文章分类列表
     router.get('/categories', restrict, function(req,res){
         var config = require('./config');
-
         req.db.categories.find({}, function(err, categories) {
+            console.log(categories);
             var categoriesLen = categories.length, hascategories;
             hascategories = categoriesLen > 0 ? true : false;
 
             var firstFatherCats = [], secondaryCats = [], threeCats = [], results = [];
-            
+
             for (var i = 0; i < categories.length; i++) {
                 var result = categories[i];
-                
+                var obj1 = {}, obj2={},obj3={},resultObj={};
                 if (result.isRoot) {// 得到一级类别
-                    firstFatherCats.push({
-                        name: result.catName,
-                        id: result._id
-                    });
-                    results.push({
-                        text: result.catName,
-                        nodes: []
-                    });
+                    obj1.name = result.catName;
+                    obj1.id = result.id;
+                    firstFatherCats.push(obj1);
+
+                    resultObj.text = result.catName;
+                    resultObj.id = result.id;
+                    resultObj.nodes = [];
+                    results.push(resultObj);
                 }else if(result.isSecondary){// 得到二级类别
-                    secondaryCats.push({
-                        name: result.catName,
-                        id: result._id,
-                        parent_id: result.parent_id
-                    });
+                    obj2.name = result.catName;
+                    obj2.id = result.id;
+                    obj2.parent_id = result.parent_id;
+                    secondaryCats.push(obj2);
                 }else{// 得到三级类别
-                    secondaryCats.push({
-                        name: result.catName,
-                        id: result._id
-                    });
+                    obj3.name = result.catName;
+                    obj3.id = result.id;
+                    obj3.parent_id = result.parent_id;
+                    threeCats.push(obj3);
                 }
             };
-
+            // 将二级分类放入一级分类中
             for (var i = 0; i < secondaryCats.length; i++) {
-                
+                var secondaryCat = secondaryCats[i];
+                for (var j = 0; j < firstFatherCats.length; j++) {
+                    var firstFatherCat = firstFatherCats[j];
+                    if(secondaryCat.parent_id == firstFatherCat.id){
+                        results[j].nodes.push({
+                            text: secondaryCat.name,
+                            id: secondaryCat.id,
+                            nodes: []
+                        });
+                    }
+                };
             };
-
-            
+            // 将三级分类放入二级分类中
+            for (var i = 0; i < threeCats.length; i++) {
+                for (var j = 0; j < results.length; j++) {
+                    for (var k = 0; k < results[j].nodes.length; k++) {
+                        if(threeCats[i].parent_id == results[j].nodes[k].id){
+                            results[j].nodes[k].nodes.push({
+                                text: secondaryCat.name,
+                                id: secondaryCat.id
+                            });
+                        }
+                    };
+                };
+            };
+            console.log(results);
 
             res.render('articleCategories', {
                 title: '文章类别',
@@ -512,6 +533,8 @@ router.post('/protected/action', function(req, res) {
             });
         });
     });
+
+    // 添加文字类别
 /* 文章route 结束*/
 
 /* 用户route 开始*/
@@ -824,350 +847,341 @@ router.post('/protected/action', function(req, res) {
     });
 /* suggest 结束*/
 
+/* file 开始*/
+    router.post('/file/new_dir', restrict, function(req, res, next) {
+        var mkdirp = require('mkdirp');
 
-
-
-
-
-
-
-
-
-router.post('/file/new_dir', restrict, function(req, res, next) {
-    var mkdirp = require('mkdirp');
-
-    // if new directory exists
-    if (req.body.custom_dir) {
-        mkdirp("public/uploads/" + req.body.custom_dir, function(err) {
-            console.log(err);
-            if (err) {
-                req.session.message = "Directory creation error. Please try again";
-                req.session.message_type = "danger";
-                res.redirect('/files');
-            } else {
-                req.session.message = "Directory successfully created";
-                req.session.message_type = "success";
-                res.redirect('/files');
-            }
-        });
-    } else {
-        req.session.message = "Please enter a directory name";
-        req.session.message_type = "danger";
-        res.redirect('/files');
-    }
-});
-
-
-// add new file form action
-router.post('/_insert_kb', restrict, function(req, res) {
-    var db = req.db;
-    var lunr_index = req.lunr_index;
-
-    var published_state = "false";
-    if (req.body.frm_kb_published == "on") {
-        published_state = "true";
-    }
-
-    // if empty, remove the comma and just have a blank string
-    var keywords = req.body.frm_kb_keywords[1];
-    if (keywords.trim() == ",") {
-        keywords = "";
-    }
-    var doc = {
-        kb_title: req.body.frm_kb_title,
-        kb_body: req.body.frm_kb_body,
-        kb_published: published_state,
-        kb_keywords: keywords,
-        kb_published_date: new Date(),
-        kb_last_updated: new Date(),
-        kb_author: req.session.user
-    };
-
-    db.kb.insert(doc, function(err, newDoc) {
-        if (err) {
-            console.log(err);
+        // if new directory exists
+        if (req.body.custom_dir) {
+            mkdirp("public/uploads/" + req.body.custom_dir, function(err) {
+                console.log(err);
+                if (err) {
+                    req.session.message = "Directory creation error. Please try again";
+                    req.session.message_type = "danger";
+                    res.redirect('/files');
+                } else {
+                    req.session.message = "Directory successfully created";
+                    req.session.message_type = "success";
+                    res.redirect('/files');
+                }
+            });
         } else {
-            // setup keywords
-            var keywords = "";
-            if (req.body.frm_kb_keywords != undefined) {
-                keywords = req.body.frm_kb_keywords.toString().replace(/,/g, ' ');
-            }
-
-            // create lunr doc
-            var lunr_doc = {
-                kb_title: req.body.frm_kb_title,
-                kb_keywords: keywords,
-                id: newDoc._id
-            };
-
-            // add to lunr index
-            lunr_index.add(lunr_doc);
-
-            req.session.message = "New article successfully created";
-            req.session.message_type = "success";
-
-            // redirect to new doc
-            res.redirect('/edit/' + newDoc._id);
+            req.session.message = "Please enter a directory name";
+            req.session.message_type = "danger";
+            res.redirect('/files');
         }
     });
-});
 
-// upload the file
-var multer = require('multer')
-var upload = multer({ dest: 'public/uploads/' });
-router.post('/file/upload', restrict, upload.single('upload_file'), function(req, res, next) {
-    var fs = require('fs');
 
-    if (req.file) {
-        // check for upload select
-        var upload_dir = "public/uploads/";
-        if (req.body.directory != "/uploads") {
-            upload_dir = "public/" + req.body.directory;
+    // add new file form action
+    router.post('/_insert_kb', restrict, function(req, res) {
+        var db = req.db;
+        var lunr_index = req.lunr_index;
+
+        var published_state = "false";
+        if (req.body.frm_kb_published == "on") {
+            published_state = "true";
         }
 
-        var file = req.file;
-        var source = fs.createReadStream(file.path);
-        var dest = fs.createWriteStream(upload_dir + "/" + file.originalname.replace(/ /g, "_"));
-
-        // save the new file
-        source.pipe(dest);
-        source.on("end", function() {});
-
-        // delete the temp file.
-        fs.unlink(file.path, function(err) {});
-
-        req.session.message = "File uploaded successfully";
-        req.session.message_type = "success";
-        res.redirect('/files');
-    } else {
-        req.session.message = "File upload error. Please select a file.";
-        req.session.message_type = "danger";
-        res.redirect('/files');
-    }
-});
-router.post('/file/myupload', restrict, upload.single('upload_file'), function(req, res, next) {
-    var fs = require('fs');
-    var db = req.db;
-    if (req.file) {
-        // check for upload select
-        var upload_dir = "public/uploads/";
-
-        var file = req.file;
-        var source = fs.createReadStream(file.path);
-        var dest = fs.createWriteStream(upload_dir + "/" + file.originalname.replace(/ /g, "_"));
-
-        // save the new file
-        source.pipe(dest);
-        source.on("end", function() {});
-
-        // delete the temp file.
-        fs.unlink(file.path, function(err) {});
-
-        var file_doc = {
-            fileName: file.originalname.replace(/ /g, "_"),
-            filePath: "public/uploads/"
+        // if empty, remove the comma and just have a blank string
+        var keywords = req.body.frm_kb_keywords[1];
+        if (keywords.trim() == ",") {
+            keywords = "";
+        }
+        var doc = {
+            kb_title: req.body.frm_kb_title,
+            kb_body: req.body.frm_kb_body,
+            kb_published: published_state,
+            kb_keywords: keywords,
+            kb_published_date: new Date(),
+            kb_last_updated: new Date(),
+            kb_author: req.session.user
         };
 
-        db.files.insert(file_doc, function(err, newDoc) {
+        db.kb.insert(doc, function(err, newDoc) {
             if (err) {
                 console.log(err);
             } else {
+                // setup keywords
+                var keywords = "";
+                if (req.body.frm_kb_keywords != undefined) {
+                    keywords = req.body.frm_kb_keywords.toString().replace(/,/g, ' ');
+                }
 
-
-
-
-
-            }
-        });
-
-        req.session.message = "File uploaded successfully";
-        req.session.message_type = "success";
-        res.redirect('/insert');
-    } else {
-        req.session.message = "File upload error. Please select a file.";
-        req.session.message_type = "danger";
-        res.redirect('/insert');
-    }
-});
-
-// delete a file via ajax request
-router.post('/file/delete', restrict, function(req, res) {
-    var fs = require('fs');
-
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type,Accept");
-
-    fs.unlink("public/" + req.body.img, function(err) {
-        if (err) {
-            console.log(err);
-            res.send({ 'data': 'Error' });
-        }
-        res.send({ 'data': 'Success' });
-    });
-});
-
-router.get('/files', restrict, function(req, res) {
-    var config = require('./config');
-    var glob = require("glob");
-    var fs = require("fs");
-
-    // loop files in /public/uploads/
-    glob("public/uploads/**", { nosort: true }, function(er, files) {
-
-        // sort array
-        files.sort();
-
-        // declare the array of objects
-        var file_list = new Array();
-        var dir_list = new Array();
-
-        // loop these files
-        for (var i = 0; i < files.length; i++) {
-
-            // only want files
-            if (fs.lstatSync(files[i]).isDirectory() == false) {
-                // declare the file object and set its values
-                var file = {
-                    id: i,
-                    path: files[i].substring(6)
+                // create lunr doc
+                var lunr_doc = {
+                    kb_title: req.body.frm_kb_title,
+                    kb_keywords: keywords,
+                    id: newDoc._id
                 };
 
-                // push the file object into the array
-                file_list.push(file);
-            } else {
-                var dir = {
-                    id: i,
-                    path: files[i].substring(6)
-                };
+                // add to lunr index
+                lunr_index.add(lunr_doc);
 
-                // push the dir object into the array
-                dir_list.push(dir);
+                req.session.message = "New article successfully created";
+                req.session.message_type = "success";
+
+                // redirect to new doc
+                res.redirect('/edit/' + newDoc._id);
+            }
+        });
+    });
+
+    // upload the file
+    var multer = require('multer')
+    var upload = multer({ dest: 'public/uploads/' });
+    router.post('/file/upload', restrict, upload.single('upload_file'), function(req, res, next) {
+        var fs = require('fs');
+
+        if (req.file) {
+            // check for upload select
+            var upload_dir = "public/uploads/";
+            if (req.body.directory != "/uploads") {
+                upload_dir = "public/" + req.body.directory;
+            }
+
+            var file = req.file;
+            var source = fs.createReadStream(file.path);
+            var dest = fs.createWriteStream(upload_dir + "/" + file.originalname.replace(/ /g, "_"));
+
+            // save the new file
+            source.pipe(dest);
+            source.on("end", function() {});
+
+            // delete the temp file.
+            fs.unlink(file.path, function(err) {});
+
+            req.session.message = "File uploaded successfully";
+            req.session.message_type = "success";
+            res.redirect('/files');
+        } else {
+            req.session.message = "File upload error. Please select a file.";
+            req.session.message_type = "danger";
+            res.redirect('/files');
+        }
+    });
+    router.post('/file/myupload', restrict, upload.single('upload_file'), function(req, res, next) {
+        var fs = require('fs');
+        var db = req.db;
+        if (req.file) {
+            // check for upload select
+            var upload_dir = "public/uploads/";
+
+            var file = req.file;
+            var source = fs.createReadStream(file.path);
+            var dest = fs.createWriteStream(upload_dir + "/" + file.originalname.replace(/ /g, "_"));
+
+            // save the new file
+            source.pipe(dest);
+            source.on("end", function() {});
+
+            // delete the temp file.
+            fs.unlink(file.path, function(err) {});
+
+            var file_doc = {
+                fileName: file.originalname.replace(/ /g, "_"),
+                filePath: "public/uploads/"
+            };
+
+            db.files.insert(file_doc, function(err, newDoc) {
+                if (err) {
+                    console.log(err);
+                } else {
+
+
+
+
+
+                }
+            });
+
+            req.session.message = "File uploaded successfully";
+            req.session.message_type = "success";
+            res.redirect('/insert');
+        } else {
+            req.session.message = "File upload error. Please select a file.";
+            req.session.message_type = "danger";
+            res.redirect('/insert');
+        }
+    });
+
+    // delete a file via ajax request
+    router.post('/file/delete', restrict, function(req, res) {
+        var fs = require('fs');
+
+        res.header("Access-Control-Allow-Origin", "*");
+        res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type,Accept");
+
+        fs.unlink("public/" + req.body.img, function(err) {
+            if (err) {
+                console.log(err);
+                res.send({ 'data': 'Error' });
+            }
+            res.send({ 'data': 'Success' });
+        });
+    });
+
+    router.get('/files', restrict, function(req, res) {
+        var config = require('./config');
+        var glob = require("glob");
+        var fs = require("fs");
+
+        // loop files in /public/uploads/
+        glob("public/uploads/**", { nosort: true }, function(er, files) {
+
+            // sort array
+            files.sort();
+
+            // declare the array of objects
+            var file_list = new Array();
+            var dir_list = new Array();
+
+            // loop these files
+            for (var i = 0; i < files.length; i++) {
+
+                // only want files
+                if (fs.lstatSync(files[i]).isDirectory() == false) {
+                    // declare the file object and set its values
+                    var file = {
+                        id: i,
+                        path: files[i].substring(6)
+                    };
+
+                    // push the file object into the array
+                    file_list.push(file);
+                } else {
+                    var dir = {
+                        id: i,
+                        path: files[i].substring(6)
+                    };
+
+                    // push the dir object into the array
+                    dir_list.push(dir);
+                }
+            }
+
+            // render the files route
+            res.render('files', {
+                title: 'Files',
+                files: file_list,
+                dirs: dir_list,
+                session: req.session,
+                config: config,
+                message: clear_session_value(req.session, "message"),
+                message_type: clear_session_value(req.session, "message_type"),
+            });
+        });
+    });
+
+    // export files into .md files and serve to browser
+    router.get('/export', restrict, function(req, res) {
+        var db = req.db;
+        var fs = require('fs');
+        var JSZip = require("jszip");
+
+        // dump all articles to .md files. Article title is the file name and body is contents
+        db.kb.find({}, function(err, results) {
+
+            // files are written and added to zip.
+            var zip = new JSZip();
+            for (var i = 0; i < results.length; i++) {
+                // add and write file to zip
+                zip.file(results[i].kb_title + ".md", results[i].kb_body);
+            }
+
+            // save the zip and serve to browser
+            var buffer = zip.generate({ type: "nodebuffer" });
+            fs.writeFile("data/export.zip", buffer, function(err) {
+                if (err) throw err;
+                res.set('Content-Type', 'application/zip')
+                res.set('Content-Disposition', 'attachment; filename=data/export.zip');
+                res.set('Content-Length', buffer.length);
+                res.end(buffer, 'binary');
+                return;
+            });
+        });
+    });
+/* file 结束*/
+
+/* 公用函数 开始 */
+    function clear_session_value(session, session_var) {
+        if (session_var == "message") {
+            var sess_message = session.message;
+            session.message = null;
+            return sess_message;
+        }
+        if (session_var == "message_type") {
+            var sess_message_type = session.message_type;
+            session.message_type = null;
+            return sess_message_type;
+        }
+    }
+
+    // This is called on the suggest url. If the value is set to false in the config
+    // a 403 error is rendered.
+    function suggest_allowed(req, res, next) {
+        var config = require('./config');
+
+        if (config.settings.suggest_allowed == true) {
+            next();
+            return;
+        } else {
+            res.render('error', { message: '403 - Forbidden' });
+        }
+    }
+
+    // This is called on all URL's. If the "password_protect" config is set to true
+    // we check for a login on thsoe normally public urls. All other URL's get
+    // checked for a login as they are considered to be protected. The only exception
+    // is the "setup", "login" and "login_action" URL's which is not checked at all.
+    function restrict(req, res, next) {
+        var config = require('./config');
+        var url_path = req.url;
+
+        // if not protecting we check for public pages and don't check_login
+        if (url_path.substring(0, 5).trim() == "/") {
+            if (config.settings.password_protect == false) {
+                next();
+                return;
+            }
+        }
+        if (url_path.substring(0, 7) == "/search") {
+            if (config.settings.password_protect == false) {
+                next();
+                return;
+            }
+        }
+        if (url_path.substring(0, 3) == "/kb") {
+            if (config.settings.password_protect == false) {
+                next();
+                return;
             }
         }
 
-        // render the files route
-        res.render('files', {
-            title: 'Files',
-            files: file_list,
-            dirs: dir_list,
-            session: req.session,
-            config: config,
-            message: clear_session_value(req.session, "message"),
-            message_type: clear_session_value(req.session, "message_type"),
-        });
-    });
-});
-
-
-
-
-
-// export files into .md files and serve to browser
-router.get('/export', restrict, function(req, res) {
-    var db = req.db;
-    var fs = require('fs');
-    var JSZip = require("jszip");
-
-    // dump all articles to .md files. Article title is the file name and body is contents
-    db.kb.find({}, function(err, results) {
-
-        // files are written and added to zip.
-        var zip = new JSZip();
-        for (var i = 0; i < results.length; i++) {
-            // add and write file to zip
-            zip.file(results[i].kb_title + ".md", results[i].kb_body);
-        }
-
-        // save the zip and serve to browser
-        var buffer = zip.generate({ type: "nodebuffer" });
-        fs.writeFile("data/export.zip", buffer, function(err) {
-            if (err) throw err;
-            res.set('Content-Type', 'application/zip')
-            res.set('Content-Disposition', 'attachment; filename=data/export.zip');
-            res.set('Content-Length', buffer.length);
-            res.end(buffer, 'binary');
-            return;
-        });
-    });
-});
-
-function clear_session_value(session, session_var) {
-    if (session_var == "message") {
-        var sess_message = session.message;
-        session.message = null;
-        return sess_message;
-    }
-    if (session_var == "message_type") {
-        var sess_message_type = session.message_type;
-        session.message_type = null;
-        return sess_message_type;
-    }
-}
-
-// This is called on the suggest url. If the value is set to false in the config
-// a 403 error is rendered.
-function suggest_allowed(req, res, next) {
-    var config = require('./config');
-
-    if (config.settings.suggest_allowed == true) {
-        next();
-        return;
-    } else {
-        res.render('error', { message: '403 - Forbidden' });
-    }
-}
-
-// This is called on all URL's. If the "password_protect" config is set to true
-// we check for a login on thsoe normally public urls. All other URL's get
-// checked for a login as they are considered to be protected. The only exception
-// is the "setup", "login" and "login_action" URL's which is not checked at all.
-function restrict(req, res, next) {
-    var config = require('./config');
-    var url_path = req.url;
-
-    // if not protecting we check for public pages and don't check_login
-    if (url_path.substring(0, 5).trim() == "/") {
-        if (config.settings.password_protect == false) {
+        if (url_path.substring(0, 12) == "/user_insert") {
             next();
             return;
         }
-    }
-    if (url_path.substring(0, 7) == "/search") {
-        if (config.settings.password_protect == false) {
-            next();
+
+        // if the "needs_setup" session variable is set, we allow as 
+        // this means there is no user existing
+        if (req.session.needs_setup == true) {
+            res.redirect('/setup');
             return;
         }
+
+        // if not a public page we 
+        check_login(req, res, next);
     }
-    if (url_path.substring(0, 3) == "/kb") {
-        if (config.settings.password_protect == false) {
+
+    // does the actual login check
+    function check_login(req, res, next) {
+        if (req.session.user) {
             next();
-            return;
+        } else {
+            res.redirect('/login');
         }
     }
-
-    if (url_path.substring(0, 12) == "/user_insert") {
-        next();
-        return;
-    }
-
-    // if the "needs_setup" session variable is set, we allow as 
-    // this means there is no user existing
-    if (req.session.needs_setup == true) {
-        res.redirect('/setup');
-        return;
-    }
-
-    // if not a public page we 
-    check_login(req, res, next);
-}
-
-// does the actual login check
-function check_login(req, res, next) {
-    if (req.session.user) {
-        next();
-    } else {
-        res.redirect('/login');
-    }
-}
+/* 公用函数 结束 */
 
 module.exports = router;
