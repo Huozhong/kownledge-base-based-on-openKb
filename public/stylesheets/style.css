@@ -1,3 +1,17 @@
+html,body,h1,h2,h3,h4,h5,h6,div,dl,dt,dd,ul,ol,li,p,blockquote,pre,hr,figure,table,caption,th,td,form,fieldset,legend,input,button,textarea,menu{margin:0;padding:0;}
+body{padding:0; margin:0;}
+html,body,fieldset,img,iframe,abbr{border:0;}
+li{list-style:none;}
+textarea{overflow:auto;resize:none;}
+a,button{cursor:pointer;}
+h1,h2,h3,h4,h5,h6,em,strong,b{font-weight:bold;}
+a,a:hover{text-decoration:none;}
+
+html,body{
+    width:100%;
+    min-height: 930px;
+    height: auto;
+}
 td{width:14%}
 
 .calendar-day{height: 110px;}
@@ -189,4 +203,46 @@ footer {
     margin-right: 10px;
     margin-left: 10px;
     margin-top: 10px;
+}
+
+.categoriesWrap {
+  width: 600px;
+  height: 100px;
+}
+.categoriesWrap ul.firstCat {
+  width: 100%;
+  height: 30px;
+}
+.categoriesWrap ul.firstCat li {
+    float: left;
+    margin-right: 20px;
+  width: 60px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  position: relative;
+  cursor: pointer;
+  
+
+}
+.categoriesWrap ul.firstCat li ul {
+  position: absolute;
+  /*display: none;*/
+  width: 100%;
+  height: auto;
+  top: 30px;
+  left: 0;
+}
+.categoriesWrap ul.firstCat li ul li {
+  width: 60px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+}
+
+#chosedCats{
+    width: 100px;
+    height: 30px;
+    line-height: 30px;
+    color: red;
 }

@@ -69,15 +69,67 @@ $(document).ready(function() {
         });
     }
     
-    console.log($('#isFatherCat'));
+
+    // 获取文章分类
+    var _window_href = window.location.href;
+    if( /categories/.test(_window_href)) {
+        $.ajax({
+            type: 'get',
+            url: '/getCategories',
+            dataType: 'JSONP',
+            success: function(results){
+                var html = '';
+                for (var i = 0; i < results.length; i++) {
+                    html += '<li id="'+results[i].id+'" data-level="2">' + results[i].text + '<ul>';
+                    for (var j = 0; j < results[i].nodes.length; j++) {
+                        html += '<li id="'+results[i].nodes[j].id+'" data-level="3">'+results[i].nodes[j].text+'</li>';
+                    };
+                    html += '</ul></li>';
+                };
+                $('.firstCat').append(html);
+                $('.categoriesWrap li').click(function(){
+                    var this_value = $(this).text();
+                    var this_id = $(this).attr('id');
+                    var this_level = $(this).attr('data-level');
+                    $("#chosedCats").text(this_value);
+                    $("#pcat_name").val(this_value);
+                    $("#cat_pid").val(this_id);
+                    $("#cat_level").val(this_level);
+                    event.stopPropagation();
+                });
+                $('#tree').treeview({data: results});
+            },
+            error: function(data){
+                // console.log(data.responseText);
+            }
+        })
+    }
+
+    var isRoot = false;
     $('#isFatherCat').click(function(){
-        console.log(1);
         if($(this).is(':checked')){
-            $('.choiceFather').hide();
+            $('.categoriesWrap').hide();
+            $("#cat_level").val(1);
+            isRoot = true;
         }else{
-            $('.choiceFather').show();
+            $('.categoriesWrap').show();
         }
     });
+
+    $("#addCategoryBtn").click(function(event){
+        var val1 = $('#cat_name').val();
+        var val2 = $('#cat_pid').val();
+        var val3 = $('#cat_level').val();
+        if(isRoot){
+            if(val1 == ''){
+                event.preventDefault();
+            }
+        }else{
+            if(val1 == '' || val2 == '' || val3 == ''){
+                event.preventDefault();
+            }
+        }
+    })
 
 });
 

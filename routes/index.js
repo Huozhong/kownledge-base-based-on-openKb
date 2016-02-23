@@ -460,11 +460,91 @@ router.post('/protected/action', function(req, res) {
         });
     });
 
-    // 读取文章分类列表
+    // 打开分类列表页面
     router.get('/categories', restrict, function(req,res){
         var config = require('./config');
+        res.render('categories', {
+            title: '文章类别',
+            session: req.session,
+            config: config,
+            helpers: req.handlebars.helpers
+        });
+        // req.db.categories.find({}, function(err, categories) {
+        //     var categoriesLen = categories.length, hascategories;
+        //     hascategories = categoriesLen > 0 ? true : false;
+
+        //     var firstFatherCats = [], secondaryCats = [], threeCats = [], results = [];
+
+        //     for (var i = 0; i < categories.length; i++) {
+        //         var result = categories[i];
+        //         var obj1 = {}, obj2={},obj3={},resultObj={};
+        //         if (result.level == 1) {// 得到一级类别
+        //             obj1.name = result.catName;
+        //             obj1.id = result._id;
+        //             firstFatherCats.push(obj1);
+
+        //             resultObj.text = result.catName;
+        //             resultObj.id = result._id;
+        //             resultObj.nodes = [];
+        //             results.push(resultObj);
+        //         }else if(result.level == 2){// 得到二级类别
+        //             obj2.name = result.catName;
+        //             obj2.id = result._id;
+        //             obj2.parent_id = result.parent_id;
+        //             secondaryCats.push(obj2);
+        //         }else{// 得到三级类别
+        //             obj3.name = result.catName;
+        //             obj3.id = result._id;
+        //             obj3.parent_id = result.parent_id;
+        //             threeCats.push(obj3);
+        //         }
+        //     };
+        //     // 将二级分类放入一级分类中
+        //     for (var i = 0; i < secondaryCats.length; i++) {
+        //         var secondaryCat = secondaryCats[i];
+        //         for (var j = 0; j < firstFatherCats.length; j++) {
+        //             var firstFatherCat = firstFatherCats[j];
+        //             if(secondaryCat.parent_id == firstFatherCat.id){
+        //                 results[j].nodes.push({
+        //                     text: secondaryCat.name,
+        //                     id: secondaryCat.id,
+        //                     nodes: []
+        //                 });
+        //             }
+        //         };
+        //     };
+        //     // 将三级分类放入二级分类中
+        //     for (var i = 0; i < threeCats.length; i++) {
+        //         for (var j = 0; j < results.length; j++) {
+        //             for (var k = 0; k < results[j].nodes.length; k++) {
+        //                 if(threeCats[i].parent_id == results[j].nodes[k].id){
+        //                     results[j].nodes[k].nodes.push({
+        //                         text: secondaryCat.name,
+        //                         id: secondaryCat.id
+        //                     });
+        //                 }
+        //             };
+        //         };
+        //     };
+        //     console.log(firstFatherCats);
+
+        //     res.render('categories', {
+        //         title: '文章类别',
+        //         hascategories: hascategories,
+        //         results: results,
+        //         firstFatherCats: firstFatherCats,
+        //         secondaryCats: secondaryCats,
+        //         session: req.session,
+        //         config: config,
+        //         helpers: req.handlebars.helpers
+        //     });
+        // });
+    });
+    // ajax 读取文章分类列表
+    router.get('/getCategories', restrict, function(req,res){
+        console.log(112323);
         req.db.categories.find({}, function(err, categories) {
-            console.log(categories);
+            
             var categoriesLen = categories.length, hascategories;
             hascategories = categoriesLen > 0 ? true : false;
 
@@ -473,23 +553,23 @@ router.post('/protected/action', function(req, res) {
             for (var i = 0; i < categories.length; i++) {
                 var result = categories[i];
                 var obj1 = {}, obj2={},obj3={},resultObj={};
-                if (result.isRoot) {// 得到一级类别
+                if (result.level == 1) {// 得到一级类别
                     obj1.name = result.catName;
-                    obj1.id = result.id;
+                    obj1.id = result._id;
                     firstFatherCats.push(obj1);
 
                     resultObj.text = result.catName;
-                    resultObj.id = result.id;
+                    resultObj.id = result._id;
                     resultObj.nodes = [];
                     results.push(resultObj);
-                }else if(result.isSecondary){// 得到二级类别
+                }else if(result.level == 2){// 得到二级类别
                     obj2.name = result.catName;
-                    obj2.id = result.id;
+                    obj2.id = result._id;
                     obj2.parent_id = result.parent_id;
                     secondaryCats.push(obj2);
                 }else{// 得到三级类别
                     obj3.name = result.catName;
-                    obj3.id = result.id;
+                    obj3.id = result._id;
                     obj3.parent_id = result.parent_id;
                     threeCats.push(obj3);
                 }
@@ -522,19 +602,41 @@ router.post('/protected/action', function(req, res) {
                 };
             };
             console.log(results);
-
-            res.render('articleCategories', {
-                title: '文章类别',
-                hascategories: hascategories,
-                results: results,
-                session: req.session,
-                config: config,
-                helpers: req.handlebars.helpers
-            });
+            res.jsonp(results);
         });
     });
 
-    // 添加文字类别
+    // 添加文章类别
+    router.post('/addCategory', restrict, function(req,res){
+        var config = require('./config');
+        var db = req.db,
+            level = req.body.frm_cat_level, 
+            doc = {};
+        if(level == 1){
+            doc = {
+                catName: req.body.frm_cat_name,
+                level: level
+            };
+        }else {
+            doc = {
+                catName: req.body.frm_cat_name,
+                level: level,
+                parent_id: req.body.frm_cat_pid
+            };
+        }
+        console.log(doc);
+        db.categories.insert(doc, function(err, newDoc) {
+            if (err) {
+                console.log(err);
+            } else {
+                req.session.message = "成功添加文章分类";
+                req.session.message_type = "success";
+
+                // redirect to new doc
+                res.redirect('/categories');
+            }
+        });
+    });
 /* 文章route 结束*/
 
 /* 用户route 开始*/

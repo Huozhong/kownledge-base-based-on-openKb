@@ -1,11 +1,6 @@
-{"catName": "first1", "id": "001", "isRoot": true, "isSecondary": false, "isChild": false}
-	{"catName": "first2", "id": "002", "isRoot": true, "isSecondary": false, "isChild": false}
-	{"catName": "first3", "id": "003", "isRoot": true, "isSecondary": false, "isChild": false}
-	{"catName": "second1_1", "id": "004", "isRoot": false, "isSecondary": true, "isChild": false, "parent_id": "001"}
-	{"catName": "second1_2", "id": "005", "isRoot": false, "isSecondary": true, "isChild": false, "parent_id": "001"}
-	{"catName": "second2_1", "id": "006", "isRoot": false, "isSecondary": true, "isChild": false, "parent_id": "002"}
-	{"catName": "second2_2", "id": "007", "isRoot": false, "isSecondary": true, "isChild": false, "parent_id": "002"}
-	{"catName": "second3_1", "id": "008", "isRoot": false, "isSecondary": true, "isChild": false, "parent_id": "003"}
-	{"catName": "second1_1_1", "id": "009", "isRoot": false, "isSecondary": false, "isChild": true, "parent_id": "004"}
-	{"catName": "second1_2_1", "id": "010", "isRoot": false, "isSecondary": false, "isChild": true, "parent_id": "005"}
-	{"catName": "second1_2_2", "id": "011", "isRoot": false, "isSecondary": false, "isChild": true, "parent_id": "005"}
+{"catName":"父类2","level":"1","_id":"2DkD650nRt7AQ5Bc"}
+{"catName":"子类1-1-1","level":"3","parent_id":"MRjEWJlheF8YZc6t","_id":"5TBYweYp0JvHeCHo"}
+{"catName":"分类1","level":1,"_id":"FeqB76N4z0iE44wI"}
+{"catName":"父类3","level":"1","_id":"GYNt72tUTypHcKV3"}
+{"catName":"子类1-1","level":"2","parent_id":"FeqB76N4z0iE44wI","_id":"MRjEWJlheF8YZc6t"}
+{"catName":"子类2-1","level":"2","parent_id":"2DkD650nRt7AQ5Bc","_id":"V4byOtcUmqLf3shE"}
